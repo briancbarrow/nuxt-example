@@ -32,7 +32,34 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/content
-    "@nuxt/content"
+    "@nuxt/content",
+    "@nuxtjs/feed"
+  ],
+
+  feed: [
+    {
+      path: '/feed.xml', // The route to your feed.
+      async create(feed) {
+        feed.options = {
+          title: 'My Great blog',
+          link: 'https://vibrant-lamport-cf3906.netlify.app/feed.xml',
+          description: 'This is my personal feed!'
+        }
+        const { $content } = require('@nuxt/content');
+        const posts = await $content('blog').fetch();
+
+        posts.forEach((post) => {
+          const url = `https://vibrant-lamport-cf3906.netlify.app/blog/${post.slug}`;
+          feed.addItem({
+            title: post.title,
+            date: post.date,
+            link: url,
+          });
+        });
+      }, // The create function (see below)
+      cacheTime: 1000 * 60 * 15, // How long should the feed be cached
+      type: 'rss2', // Can be: rss2, atom1, json1
+    }
   ],
 
   // Content module configuration: https://go.nuxtjs.dev/config-content
