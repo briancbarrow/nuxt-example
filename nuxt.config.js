@@ -107,7 +107,9 @@ export default {
             description: `This is ${author}'s personal feed!`
           };
           const posts = await $content("blog")
-            .where("author", author)
+            .where({
+              author: params.author
+            })
             .fetch();
 
           posts.forEach(post => {
