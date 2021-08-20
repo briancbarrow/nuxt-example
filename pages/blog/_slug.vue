@@ -1,7 +1,9 @@
 <template>
   <article>
-    <h1>{{post.title}}</h1>
-    <p>Author: {{post.author}}</p>
+    <h1>{{ post.title }}</h1>
+    <nuxt-link :to="`/blog/authors/${post.author}`"
+      >Author: {{ post.author }}</nuxt-link
+    >
     <nuxt-content :document="post" />
   </article>
 </template>
