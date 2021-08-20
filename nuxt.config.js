@@ -52,7 +52,7 @@ export default {
           const url = `https://vibrant-lamport-cf3906.netlify.app/blog/${post.slug}`;
           feed.addItem({
             title: post.title,
-            date: post.date,
+            date: new Date(post.date),
             link: url,
           });
         });
