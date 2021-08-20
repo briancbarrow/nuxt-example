@@ -97,7 +97,7 @@ export default {
         return self.indexOf(value) === index;
       });
 
-    return uniqueAuthors.map(author => {
+    const feedArray = uniqueAuthors.map(author => {
       return {
         path: `/authors/${author}/feed.xml`,
         async create(feed) {
@@ -123,6 +123,8 @@ export default {
         type: "rss2" // Can be: rss2, atom1, json1
       };
     });
+    feedArray.push(mainFeed);
+    return feedArray;
   },
 
   // Content module configuration: https://go.nuxtjs.dev/config-content
