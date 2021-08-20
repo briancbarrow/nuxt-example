@@ -36,31 +36,94 @@ export default {
     "@nuxtjs/feed"
   ],
 
-  feed: [
-    {
-      path: '/feed.xml', // The route to your feed.
+  // feed: [
+  //   {
+  //     path: "/feed.xml", // The route to your feed.
+  //     async create(feed) {
+  //       feed.options = {
+  //         title: "My Great blog",
+  //         link: "https://vibrant-lamport-cf3906.netlify.app/feed.xml",
+  //         description: "This is my personal feed!"
+  //       };
+  //       const { $content } = require("@nuxt/content");
+  //       const posts = await $content("blog").fetch();
+
+  //       posts.forEach(post => {
+  //         const url = `https://vibrant-lamport-cf3906.netlify.app/blog/${post.slug}`;
+  //         feed.addItem({
+  //           title: post.title,
+  //           date: new Date(post.date),
+  //           link: url
+  //         });
+  //       });
+  //     }, // The create function (see below)
+  //     cacheTime: 1000 * 60 * 15, // How long should the feed be cached
+  //     type: "rss2" // Can be: rss2, atom1, json1
+  //   }
+  // ],
+  feed: async () => {
+    const mainFeed = {
+      path: "/feed.xml", // The route to your feed.
       async create(feed) {
         feed.options = {
-          title: 'My Great blog',
-          link: 'https://vibrant-lamport-cf3906.netlify.app/feed.xml',
-          description: 'This is my personal feed!'
-        }
-        const { $content } = require('@nuxt/content');
-        const posts = await $content('blog').fetch();
+          title: "My Great blog",
+          link: "https://vibrant-lamport-cf3906.netlify.app/feed.xml",
+          description: "This is my personal feed!"
+        };
+        const { $content } = require("@nuxt/content");
+        const posts = await $content("blog").fetch();
 
-        posts.forEach((post) => {
+        posts.forEach(post => {
           const url = `https://vibrant-lamport-cf3906.netlify.app/blog/${post.slug}`;
           feed.addItem({
             title: post.title,
             date: new Date(post.date),
-            link: url,
+            link: url
           });
         });
       }, // The create function (see below)
       cacheTime: 1000 * 60 * 15, // How long should the feed be cached
-      type: 'rss2', // Can be: rss2, atom1, json1
-    }
-  ],
+      type: "rss2" // Can be: rss2, atom1, json1
+    };
+    const { $content } = require("@nuxt/content");
+    const allAuthors = await $content("blog")
+      .only(["author"])
+      .fetch();
+    const uniqueAuthors = allAuthors
+      .map(obj => {
+        return obj.author;
+      })
+      .filter((value, index, self) => {
+        return self.indexOf(value) === index;
+      });
+
+    return uniqueAuthors.map(author => {
+      return {
+        path: `/authors/${author}/feed.xml`,
+        async create(feed) {
+          feed.options = {
+            title: `${author}'s Deepgram Posts`,
+            link: `https://vibrant-lamport-cf3906.netlify.app/authors/${author}/feed.xml`,
+            description: `This is ${author}'s personal feed!`
+          };
+          const posts = await $content("blog")
+            .where("author", author)
+            .fetch();
+
+          posts.forEach(post => {
+            const url = `https://vibrant-lamport-cf3906.netlify.app/blog/${post.slug}`;
+            feed.addItem({
+              title: post.title,
+              date: new Date(post.date),
+              link: url
+            });
+          });
+        }, // The create function (see below)
+        cacheTime: 1000 * 60 * 15, // How long should the feed be cached
+        type: "rss2" // Can be: rss2, atom1, json1
+      };
+    });
+  },
 
   // Content module configuration: https://go.nuxtjs.dev/config-content
   content: {},
